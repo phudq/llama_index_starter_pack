@@ -22,16 +22,17 @@ def query_index():
     query_text = request.args.get("text", None)
     if query_text is None:
         return "No text found, please include a ?text=blah parameter in the URL", 400
-    
+
     response = manager.query_index(query_text)._getvalue()
+
     response_json = {
         "text": str(response),
-        "sources": [{"text": str(x.source_text), 
-                     "similarity": round(x.similarity, 2),
-                     "doc_id": str(x.doc_id),
-                     "start": x.node_info['start'],
-                     "end": x.node_info['end']
-                    } for x in response.source_nodes]
+        "sources": [{"text": str(x.text),
+                     # "similarity": round(x.similarity, 2),
+                     "doc_id": str(x.id_),
+                     # "start": x.node_info['start'],
+                     # "end": x.node_info['end']
+                     } for x in response.source_nodes]
     }
     return make_response(jsonify(response_json)), 200
 
@@ -41,7 +42,7 @@ def upload_file():
     global manager
     if 'file' not in request.files:
         return "Please send a POST request with a file", 400
-    
+
     filepath = None
     try:
         uploaded_file = request.files["file"]
@@ -71,7 +72,7 @@ def get_documents():
     document_list = manager.get_documents_list()._getvalue()
 
     return make_response(jsonify(document_list)), 200
-    
+
 
 @app.route("/")
 def home():
